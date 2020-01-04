@@ -1,6 +1,8 @@
 package com.company;
 
-public class Declination {
+import java.io.Serializable;
+
+public class Declination implements Serializable {
     private int degrees;
     private int minutes;
     private int seconds;
@@ -17,5 +19,29 @@ public class Declination {
         if(seconds < 0 || seconds > 90){
             throw new IllegalArgumentException("Incorrect declination seconds value");
         }else this.seconds = seconds;
+    }
+
+    public int getDegrees() {
+        return degrees;
+    }
+
+    public void setDegrees(int degrees) {
+        this.degrees = degrees;
+    }
+
+    public int getMinutes() {
+        return minutes;
+    }
+
+    public void setMinutes(int minutes) {
+        this.minutes = minutes;
+    }
+
+    public int getSeconds() {
+        return seconds;
+    }
+
+    public void setSeconds(int seconds) {
+        this.seconds = seconds;
     }
 }

@@ -1,6 +1,13 @@
 package com.company;
 
-public class Gwiazda {
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+public class Star implements Serializable {
 
     //protected enum GreekAlphabet {ALPHA, BETA, GAMMA, DELTA, EPSILON, ZETA, ETA, THETA, IOTA, KAPPA, LAMBDA, MU,NU,XI,OMICRON,PI,RHO,SIGMA,TAU,UPSILON,PHI,CHI,PSI,OMEGA}
     protected String[] greekAlphabet = new String[]{"ALPHA", "BETA", "GAMMA", "DELTA", "EPSILON", "ZETA", "ETA", "THETA", "IOTA", "KAPPA", "LAMBDA", "MU", "NU", "XI", "OMICRON", "PI", "RHO", "SIGMA", "TAU", "UPSILON", "PHI", "CHI", "PSI", "OMEGA"};
@@ -14,10 +21,10 @@ public class Gwiazda {
     protected boolean isNothernHemisphere;
     protected double temperature;                               //(W stopniach Celsjusza) Przyjmujemy, iż minimalna temperatura gwiazdy wynosi 2000 stopni, górna granica nie występuje.
     protected double mass;                                      //(podana w odniesieniu do masy Słońca). Przyjmujemy, iż minimalna masa gwiazdy wynosi 0.1 masy Słońca, natomiast maksymalna dopuszczalna masa wynosić będzie 50.
-    protected String catalogName;                               //nazwa katalogowa[litera alfabetu greckiego + nazwa gwiazdozbioru]
+    protected String[] catalogName;                             //nazwa katalogowa[litera alfabetu greckiego + nazwa gwiazdozbioru]
+    protected List<Double> starsBrightnessList = new ArrayList<Double>();
 
-
-    public Gwiazda(String name, double observedStarSize, double distanceInLightYears, String constellation, double absoluteStarSize, String hemisphere, double temperature, double mass, String catalogName) {
+    public Star(String name, double observedStarSize, double distanceInLightYears, String constellation, String hemisphere, double temperature, double mass, RightAscension rightAscension, Declination declination) {
         this.name = CheckName(name);
         this.observedStarSize = CheckMagnitudo(observedStarSize);
         this.distanceInLightYears = distanceInLightYears;
@@ -26,8 +33,14 @@ public class Gwiazda {
         this.isNothernHemisphere = CheckHemisphere(hemisphere);
         this.temperature = CheckTemperature(temperature);
         this.mass = CheckMass(mass);
-        this.catalogName = CreateCatalogName(constellation);
+        this.rightAscension = rightAscension;
+        this.declination = declination;
+        this.catalogName = SetCatalogName();
     }
+
+
+
+    //Conditions for star to exist
 
     protected String CheckName(String name){
         int grandLetters = 0;
@@ -39,7 +52,7 @@ public class Gwiazda {
             }
         }
         for (int i = 0; i < 4; i++) {           //loop counting numbers in star name
-            if((byte)name.charAt(name.length() - i) > 47 && (byte)name.charAt(name.length() - i) < 58){
+            if((byte)name.charAt(3 + i) > 47 && (byte)name.charAt(3 + i) < 58){
                 numbers++;
             }
         }
@@ -85,17 +98,72 @@ public class Gwiazda {
         return mass;
     }
 
-    protected String CreateCatalogName(String constellation){
-        return greekAlphabet[0] + constellation;
+
+    protected String[] SetCatalogName(){
+        int counter = 0;
+        try{
+            ObjectInputStream inputStream = new ObjectInputStream( new FileInputStream("stars.txt"));
+            Object object = null;
+            while((object = inputStream.readObject()) != null){
+                if(object instanceof Star) {
+                    Star temporaryStar = (Star)object;
+                    if (constellation.toLowerCase().equals(temporaryStar.constellation.toLowerCase())) {
+                        starsBrightnessList.add(temporaryStar.getObservedStarSize());
+                    }
+                }
+            }
+            inputStream.close();
+        }catch (EOFException e){
+            System.out.println();
+        }catch(IOException e){
+            System.out.printf("IOException is caught in SetCatalogName; ");
+            //e.printStackTrace();
+        }catch (ClassNotFoundException e) {
+            System.out.println("ClassNotFoundException is caught in SetCatalogName; ");
+            e.printStackTrace();
+        }
+
+
+        //sorting list of stars brightness
+        Collections.sort(starsBrightnessList);
+
+        //
+        Double temp = starsBrightnessList.get(0);
+        for (int i = 0; i <= starsBrightnessList.size(); i++) {
+            temp = starsBrightnessList.get(i);
+            if(temp.equals(observedStarSize)){
+                System.out.println(greekAlphabet[i]);
+                counter = i;
+                break;
+            }
+        }
+
+        String[] catalogName = new String[]{constellation, greekAlphabet[counter]};
+        return catalogName;
     }
 
+    public String ToString(){
+
+        return "Name: " + name + "\n" +
+                "Observed star size: " + observedStarSize + "\n" +
+                "Distance in light years: " + distanceInLightYears + "\n" +
+                "Constellation: " + constellation + "\n" +
+                "Hemisphere: " + "Work in progress" + "\n" +
+                "Temperature: " + temperature + "\n" +
+                "Mass: " + mass + "\n" +
+                "Right ascension: " + rightAscension.getHours() + "." + rightAscension.getMinutes() + "." + rightAscension.getSeconds() + "\n" +
+                "Declination: " + declination.getDegrees() + "." + declination.getMinutes() + "." + declination.getSeconds() + "\n" +
+                "Catalog name: " + Arrays.toString(catalogName) + "\n";
+    }
+
+    //Getters
 
     public String getName() {
         return name;
     }
 
-    public double getObservedStarSize() {
-        return observedStarSize;
+    public Double getObservedStarSize(){
+        return (Double)observedStarSize;
     }
 
     public double getDistanceInLightYears() {
@@ -130,14 +198,15 @@ public class Gwiazda {
         return mass;
     }
 
-    public String getCatalogName() {
+    public String[] getCatalogName() {
         return catalogName;
     }
 }
 
 //co robi exception?
 
-//https://github.com/psztefko/Stars-project
+//musi załadować wszystkie gwiazdy
+//porównać gwiazdy z tych samych konstelacji
 
 /*      Zbuduj klasę Gwiazda posiadającą następujące pola:
         nazwa – dowolne oznaczenie gwiazdy. Przyjmujemy, iż nazwa każdej
