@@ -16,8 +16,8 @@ public class Main {
 
         Star s1 = new Star("AAA1111", -22.0, 40, "DefaultConstellation", "PN", 5000, 30, new RightAscension(20, 50, 50), new Declination(22, 50, 40));
         Star s2 = new Star("BBB2222", -15.0, 200, "DefaultConstellation", "PD", 10000, 50, new RightAscension(15, 20, 30), new Declination(60, 70, 80));
-        Star s3 = new Star("CCC3333", 5, 100, "Constellation2", "PN", 40000, 70, new RightAscension(5, 50, 15), new Declination(59, 30, 19));
-        Star s4 = new Star("DDD4444", 10, 150, "Constellation3", "PD", 6000, 40, new RightAscension(12, 53, 24), new Declination(64, 21, 53));
+        Star s3 = new Star("CCC3333", 5, 100, "Constellation2", "PN", 40000, 5, new RightAscension(5, 50, 15), new Declination(59, 30, 19));
+        Star s4 = new Star("DDD4444", 10, 150, "Constellation3", "PD", 6000, 1, new RightAscension(12, 53, 24), new Declination(64, 21, 53));
 
         List<Star> listOfStars = new ArrayList<>();
         listOfStars.add(s1);
@@ -28,26 +28,33 @@ public class Main {
         SaveToFile(listOfStars, "stars.txt");
 
         //read all stars from file
-/*        List<Star> temp = ReadStarsFromFile();
+        List<Star> temp = ReadStarsFromFile();
+
+        //search for all stars that are between x and y parsec away from earth
+        //List<Star> temp = SearchByDistance(80.0, 160.0);
+
+        //search for all stars that have temperature between x and y
+        //List<Star> temp = SearchByTemperature(5000.0, 20000.0);
+
+        //search for all stars that have magnitudo between x and y
+        //List<Star> temp = SearchByAbsoluteStarSize(10.0, 2000.0);
+
+        //search for all stars that have given hemisphere
+        //List<Star> temp = SearchByHemisphere("PN");
+
+        //search for all stars that might be supernova's
+        //List<Star> temp = SearchPotentialSupernova();
+
         Star ss = null;
         for (int i = 0; i < temp.size(); i++) {
             ss = temp.get(i);
             ss.SetCatalogName();
             System.out.println(ss.ToString());
-        }*/
-
-        //search for all stars that are x parsec away from earth
-/*        List<Star> temp = SearchByDistance(80.0, 160.0);
-        Star ss = null;
-        for (int i = 0; i < temp.size(); i++) {
-            ss = temp.get(i);
-            ss.SetCatalogName();
-            System.out.println(ss.ToString());
-        }*/
+        }
 
 
 
- /*       String[] tempCatalogName = new String[]{"DefaultConstellation", "ALPHA"};
+        String[] tempCatalogName = new String[]{"DefaultConstellation", "ALPHA"};
         RemoveObjectFromFile(tempCatalogName);
 
         List<Star> temp1 = ReadStarsFromFile();
@@ -56,7 +63,9 @@ public class Main {
             ss = temp1.get(i);
             ss.SetCatalogName();
             System.out.println(ss.ToString());
-        }*/
+        }
+
+
 
     }
 
@@ -97,32 +106,6 @@ public class Main {
         return listOfStars;
     }
 
-    public static List<Star> SearchByDistance(double lowerLimit, double upperLimit){
-        List<Star> listOfStars = new ArrayList<>();
-        try{
-            ObjectInputStream inputStream = new ObjectInputStream( new FileInputStream("stars.txt"));
-            Object object = null;
-            while((object = inputStream.readObject()) != null){
-                if(object instanceof Star) {
-                    Star temporaryStar = (Star)object;
-                    if (lowerLimit < temporaryStar.distanceInLightYears && temporaryStar.distanceInLightYears < upperLimit) {
-                        listOfStars.add(temporaryStar);
-                    }
-                }
-            }
-            inputStream.close();
-        }catch (EOFException e){
-            System.out.println();
-            //e.printStackTrace();
-        }catch(IOException e){
-            System.out.printf("IOException is caught in SetCatalogName; ");
-            //e.printStackTrace();
-        }catch (ClassNotFoundException e) {
-            System.out.println("ClassNotFoundException is caught in SetCatalogName; ");
-        }
-
-        return listOfStars;
-    }
 
     public static void RemoveObjectFromFile(String[] catalogName){
         List<Star> listOfStars = new ArrayList<>();
@@ -158,8 +141,141 @@ public class Main {
             Star updatedStar = new Star(temporaryStar.getName(), temporaryStar.getObservedStarSize(), temporaryStar.getDistanceInLightYears(), temporaryStar.getConstellation(), temporaryStar.getHemisphere(), temporaryStar.getTemperature(), temporaryStar.getMass(), temporaryStar.getRightAscension(), temporaryStar.getDeclination());
             listOfUpdatedStars.add(updatedStar);
         }
-
         SaveToFile(listOfUpdatedStars, "stars.txt");
+    }
 
+    public static List<Star> SearchByTemperature(double lowerLimit, double upperLimit){
+        List<Star> listOfStars = new ArrayList<>();
+        try{
+            ObjectInputStream inputStream = new ObjectInputStream( new FileInputStream("stars.txt"));
+            Object object = null;
+            while((object = inputStream.readObject()) != null){
+                if(object instanceof Star) {
+                    Star temporaryStar = (Star)object;
+                    if (lowerLimit < temporaryStar.temperature && temporaryStar.temperature < upperLimit) {
+                        listOfStars.add(temporaryStar);
+                    }
+                }
+            }
+            inputStream.close();
+        }catch (EOFException e){
+            System.out.println();
+            //e.printStackTrace();
+        }catch(IOException e){
+            System.out.printf("IOException is caught in SetCatalogName; ");
+            //e.printStackTrace();
+        }catch (ClassNotFoundException e) {
+            System.out.println("ClassNotFoundException is caught in SetCatalogName; ");
+        }
+
+        return listOfStars;
+    }
+
+    public static List<Star> SearchByDistance(double lowerLimit, double upperLimit){
+        List<Star> listOfStars = new ArrayList<>();
+        try{
+            ObjectInputStream inputStream = new ObjectInputStream( new FileInputStream("stars.txt"));
+            Object object = null;
+            while((object = inputStream.readObject()) != null){
+                if(object instanceof Star) {
+                    Star temporaryStar = (Star)object;
+                    if (lowerLimit*3.26 < temporaryStar.distanceInLightYears && temporaryStar.distanceInLightYears < upperLimit*3.26) {
+                        listOfStars.add(temporaryStar);
+                    }
+                }
+            }
+            inputStream.close();
+        }catch (EOFException e){
+            System.out.println();
+            //e.printStackTrace();
+        }catch(IOException e){
+            System.out.printf("IOException is caught in SetCatalogName; ");
+            //e.printStackTrace();
+        }catch (ClassNotFoundException e) {
+            System.out.println("ClassNotFoundException is caught in SetCatalogName; ");
+        }
+
+        return listOfStars;
+    }
+
+    public static List<Star> SearchByAbsoluteStarSize(double lowerLimit, double upperLimit){
+        List<Star> listOfStars = new ArrayList<>();
+        try{
+            ObjectInputStream inputStream = new ObjectInputStream( new FileInputStream("stars.txt"));
+            Object object = null;
+            while((object = inputStream.readObject()) != null){
+                if(object instanceof Star) {
+                    Star temporaryStar = (Star)object;
+                    if (lowerLimit < temporaryStar.absoluteStarSize && temporaryStar.absoluteStarSize < upperLimit) {
+                        listOfStars.add(temporaryStar);
+                    }
+                }
+            }
+            inputStream.close();
+        }catch (EOFException e){
+            System.out.println();
+            //e.printStackTrace();
+        }catch(IOException e){
+            System.out.printf("IOException is caught in SetCatalogName; ");
+            //e.printStackTrace();
+        }catch (ClassNotFoundException e) {
+            System.out.println("ClassNotFoundException is caught in SetCatalogName; ");
+        }
+
+        return listOfStars;
+    }
+
+    public static List<Star> SearchByHemisphere(String hemisphere){
+        List<Star> listOfStars = new ArrayList<>();
+        try{
+            ObjectInputStream inputStream = new ObjectInputStream( new FileInputStream("stars.txt"));
+            Object object = null;
+            while((object = inputStream.readObject()) != null){
+                if(object instanceof Star) {
+                    Star temporaryStar = (Star)object;
+                    if (temporaryStar.getHemisphere().equals(hemisphere)) {
+                        listOfStars.add(temporaryStar);
+                    }
+                }
+            }
+            inputStream.close();
+        }catch (EOFException e){
+            System.out.println();
+            //e.printStackTrace();
+        }catch(IOException e){
+            System.out.printf("IOException is caught in SetCatalogName; ");
+            //e.printStackTrace();
+        }catch (ClassNotFoundException e) {
+            System.out.println("ClassNotFoundException is caught in SetCatalogName; ");
+        }
+
+        return listOfStars;
+    }
+
+    public static List<Star> SearchPotentialSupernova(){
+        List<Star> listOfStars = new ArrayList<>();
+        try{
+            ObjectInputStream inputStream = new ObjectInputStream( new FileInputStream("stars.txt"));
+            Object object = null;
+            while((object = inputStream.readObject()) != null){
+                if(object instanceof Star) {
+                    Star temporaryStar = (Star)object;
+                    if (temporaryStar.mass > 1.44) {
+                        listOfStars.add(temporaryStar);
+                    }
+                }
+            }
+            inputStream.close();
+        }catch (EOFException e){
+            System.out.println();
+            //e.printStackTrace();
+        }catch(IOException e){
+            System.out.printf("IOException is caught in SetCatalogName; ");
+            //e.printStackTrace();
+        }catch (ClassNotFoundException e) {
+            System.out.println("ClassNotFoundException is caught in SetCatalogName; ");
+        }
+
+        return listOfStars;
     }
 }

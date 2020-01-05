@@ -18,7 +18,7 @@ public class Star implements Serializable {
     protected RightAscension rightAscension;
     protected String constellation;
     protected double absoluteStarSize;                          //wartość magnitudo, jaką ma gwiazda z określonej odległości. Istnieje ścisła zależność pomiędzy obserwowaną a absolutną wielkością gwiazdową wyrażona wzorem: M = m − 5· log10r + 5 (logarytm przy podstawie 10 z r), gdzie m to obserwowana wielkość gwiazdowa, a r to odległość od gwiazdy wyrażona w parsekach. Przyjmujemy, iż 1 parsek to 3.26 roku świetlnego.
-    protected String hemisphere;
+    protected boolean isNothernhemisphere;
     protected double temperature;                               //(W stopniach Celsjusza) Przyjmujemy, iż minimalna temperatura gwiazdy wynosi 2000 stopni, górna granica nie występuje.
     protected double mass;                                      //(podana w odniesieniu do masy Słońca). Przyjmujemy, iż minimalna masa gwiazdy wynosi 0.1 masy Słońca, natomiast maksymalna dopuszczalna masa wynosić będzie 50.
     protected String[] catalogName;                             //nazwa katalogowa[litera alfabetu greckiego + nazwa gwiazdozbioru]
@@ -31,7 +31,7 @@ public class Star implements Serializable {
         this.distanceInLightYears = distanceInLightYears;
         this.constellation = constellation;
         this.absoluteStarSize = SetAbsoluteStarSize();
-        this.hemisphere = CheckHemisphere(hemisphere);
+        this.isNothernhemisphere = CheckHemisphere(hemisphere);
         this.temperature = CheckTemperature(temperature);
         this.mass = CheckMass(mass);
         this.rightAscension = rightAscension;
@@ -77,11 +77,11 @@ public class Star implements Serializable {
         return observedStarSize - 5*Math.log10(parsec) + 5;
     }
 
-    protected String CheckHemisphere(String hemisphere){
+    protected boolean CheckHemisphere(String hemisphere){
         if(hemisphere.toUpperCase().equals("PN")){
-            return hemisphere;
+            return true;
         }else if(hemisphere.toUpperCase().equals("PD")){
-            return  hemisphere;
+            return  false;
         }else throw new IllegalArgumentException("Incorrect hemisphere value");
     }
 
@@ -100,41 +100,46 @@ public class Star implements Serializable {
     }
 
 
-    protected String[] SetCatalogName(){
+    protected String[] SetCatalogName() {
         int counter = 0;
-        try{
-            ObjectInputStream inputStream = new ObjectInputStream( new FileInputStream("stars.txt"));
+        try {
+            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream("stars.txt"));
             Object object = null;
-            while((object = inputStream.readObject()) != null){
-                if(object instanceof Star) {
-                    Star temporaryStar = (Star)object;
+            while ((object = inputStream.readObject()) != null) {
+                if (object instanceof Star) {
+                    Star temporaryStar = (Star) object;
                     if (constellation.toLowerCase().equals(temporaryStar.constellation.toLowerCase())) {
                         starsBrightnessList.add(temporaryStar.getObservedStarSize());
                     }
                 }
             }
             inputStream.close();
-        }catch (EOFException e){
+        } catch (EOFException e) {
             System.out.println();
             //e.printStackTrace();
-        }catch(IOException e){
+        } catch (IOException e) {
             System.out.printf("IOException is caught in SetCatalogName; ");
             //e.printStackTrace();
-        }catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             System.out.println("ClassNotFoundException is caught in SetCatalogName; ");
         }
 
         //sorting list of stars brightness
         Collections.sort(starsBrightnessList);
 
-        Double temp = starsBrightnessList.get(0);
-        for (int i = 0; i <= starsBrightnessList.size(); i++) {
-            temp = starsBrightnessList.get(i);
-            if(temp.equals(observedStarSize)){
-                counter = i;
-                break;
+        
+        if(starsBrightnessList.size() > 0){
+            Double temp = starsBrightnessList.get(0);
+            for (int i = 0; i <= starsBrightnessList.size(); i++) {
+                temp = starsBrightnessList.get(i);
+                if(temp.equals(observedStarSize)){
+                    counter = i;
+                    break;
+                }
             }
         }
+
+
         String[] catalogName = new String[]{constellation, greekAlphabet[counter]};
         return catalogName;
     }
@@ -145,7 +150,7 @@ public class Star implements Serializable {
                 "Observed star size: " + observedStarSize + "\n" +
                 "Distance in light years: " + distanceInLightYears + "\n" +
                 "Constellation: " + constellation + "\n" +
-                "Hemisphere: " + "Work in progress" + "\n" +
+                "Hemisphere: " + getHemisphere() + "\n" +
                 "Temperature: " + temperature + "\n" +
                 "Mass: " + mass + "\n" +
                 "Right ascension: " + rightAscension.getHours() + "." + rightAscension.getMinutes() + "." + rightAscension.getSeconds() + "\n" +
@@ -186,7 +191,11 @@ public class Star implements Serializable {
     }
 
     public String getHemisphere() {
-        return hemisphere;
+        if(isNothernhemisphere){
+            return "PN";
+        }else{
+            return "PD";
+        }
     }
 
     public double getTemperature() {
