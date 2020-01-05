@@ -18,11 +18,12 @@ public class Star implements Serializable {
     protected RightAscension rightAscension;
     protected String constellation;
     protected double absoluteStarSize;                          //wartość magnitudo, jaką ma gwiazda z określonej odległości. Istnieje ścisła zależność pomiędzy obserwowaną a absolutną wielkością gwiazdową wyrażona wzorem: M = m − 5· log10r + 5 (logarytm przy podstawie 10 z r), gdzie m to obserwowana wielkość gwiazdowa, a r to odległość od gwiazdy wyrażona w parsekach. Przyjmujemy, iż 1 parsek to 3.26 roku świetlnego.
-    protected boolean isNothernHemisphere;
+    protected String hemisphere;
     protected double temperature;                               //(W stopniach Celsjusza) Przyjmujemy, iż minimalna temperatura gwiazdy wynosi 2000 stopni, górna granica nie występuje.
     protected double mass;                                      //(podana w odniesieniu do masy Słońca). Przyjmujemy, iż minimalna masa gwiazdy wynosi 0.1 masy Słońca, natomiast maksymalna dopuszczalna masa wynosić będzie 50.
     protected String[] catalogName;                             //nazwa katalogowa[litera alfabetu greckiego + nazwa gwiazdozbioru]
     protected List<Double> starsBrightnessList = new ArrayList<Double>();
+
 
     public Star(String name, double observedStarSize, double distanceInLightYears, String constellation, String hemisphere, double temperature, double mass, RightAscension rightAscension, Declination declination) {
         this.name = CheckName(name);
@@ -30,7 +31,7 @@ public class Star implements Serializable {
         this.distanceInLightYears = distanceInLightYears;
         this.constellation = constellation;
         this.absoluteStarSize = SetAbsoluteStarSize();
-        this.isNothernHemisphere = CheckHemisphere(hemisphere);
+        this.hemisphere = CheckHemisphere(hemisphere);
         this.temperature = CheckTemperature(temperature);
         this.mass = CheckMass(mass);
         this.rightAscension = rightAscension;
@@ -76,11 +77,11 @@ public class Star implements Serializable {
         return observedStarSize - 5*Math.log10(parsec) + 5;
     }
 
-    protected boolean CheckHemisphere(String hemisphere){
+    protected String CheckHemisphere(String hemisphere){
         if(hemisphere.toUpperCase().equals("PN")){
-            return true;
+            return hemisphere;
         }else if(hemisphere.toUpperCase().equals("PD")){
-            return false;
+            return  hemisphere;
         }else throw new IllegalArgumentException("Incorrect hemisphere value");
     }
 
@@ -115,29 +116,25 @@ public class Star implements Serializable {
             inputStream.close();
         }catch (EOFException e){
             System.out.println();
+            //e.printStackTrace();
         }catch(IOException e){
             System.out.printf("IOException is caught in SetCatalogName; ");
             //e.printStackTrace();
         }catch (ClassNotFoundException e) {
             System.out.println("ClassNotFoundException is caught in SetCatalogName; ");
-            e.printStackTrace();
         }
-
 
         //sorting list of stars brightness
         Collections.sort(starsBrightnessList);
 
-        //
         Double temp = starsBrightnessList.get(0);
         for (int i = 0; i <= starsBrightnessList.size(); i++) {
             temp = starsBrightnessList.get(i);
             if(temp.equals(observedStarSize)){
-                System.out.println(greekAlphabet[i]);
                 counter = i;
                 break;
             }
         }
-
         String[] catalogName = new String[]{constellation, greekAlphabet[counter]};
         return catalogName;
     }
@@ -156,7 +153,9 @@ public class Star implements Serializable {
                 "Catalog name: " + Arrays.toString(catalogName) + "\n";
     }
 
+
     //Getters
+
 
     public String getName() {
         return name;
@@ -186,8 +185,8 @@ public class Star implements Serializable {
         return absoluteStarSize;
     }
 
-    public boolean isNothernHemisphere() {
-        return isNothernHemisphere;
+    public String getHemisphere() {
+        return hemisphere;
     }
 
     public double getTemperature() {
