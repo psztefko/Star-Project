@@ -13,7 +13,7 @@ public class Main {
 
 
     public static void main(String[] args) {
-
+        //test
         Star s1 = new Star("AAA1111", -22.0, 40, "DefaultConstellation", "PN", 5000, 30, new RightAscension(20, 50, 50), new Declination(22, 50, 40));
         Star s2 = new Star("BBB2222", -15.0, 200, "DefaultConstellation", "PD", 10000, 50, new RightAscension(15, 20, 30), new Declination(60, 70, 80));
         Star s3 = new Star("CCC3333", 5, 100, "Constellation2", "PN", 40000, 5, new RightAscension(5, 50, 15), new Declination(59, 30, 19));
