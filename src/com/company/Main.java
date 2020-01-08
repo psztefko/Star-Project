@@ -13,11 +13,11 @@ public class Main {
 
 
     public static void main(String[] args) {
-        //test
-        Star s1 = new Star("AAA1111", -22.0, 40, "DefaultConstellation", "PN", 5000, 30, new RightAscension(20, 50, 50), new Declination(22, 50, 40));
-        Star s2 = new Star("BBB2222", -15.0, 200, "DefaultConstellation", "PD", 10000, 50, new RightAscension(15, 20, 30), new Declination(60, 70, 80));
-        Star s3 = new Star("CCC3333", 5, 100, "Constellation2", "PN", 40000, 5, new RightAscension(5, 50, 15), new Declination(59, 30, 19));
-        Star s4 = new Star("DDD4444", 10, 150, "Constellation3", "PD", 6000, 1, new RightAscension(12, 53, 24), new Declination(64, 21, 53));
+
+        Star s1 = new Star("AAA1111", -22.0, 40, "DefaultConstellation", "PN", 5000, 30, new RightAscension(20, 50, 50), new Declination(22, 50, 40), "stars.txt");
+        Star s2 = new Star("BBB2222", -15.0, 200, "DefaultConstellation", "PD", 10000, 50, new RightAscension(15, 20, 30), new Declination(60, 70, 80), "stars.txt");
+        Star s3 = new Star("CCC3333", 5, 100, "Constellation2", "PN", 40000, 5, new RightAscension(5, 50, 15), new Declination(59, 30, 19), "stars.txt");
+        Star s4 = new Star("DDD4444", 10, 150, "Constellation3", "PD", 6000, 1, new RightAscension(12, 53, 24), new Declination(64, 21, 53), "stars.txt");
 
         List<Star> listOfStars = new ArrayList<>();
         listOfStars.add(s1);
@@ -48,7 +48,7 @@ public class Main {
         Star ss = null;
         for (int i = 0; i < temp.size(); i++) {
             ss = temp.get(i);
-            ss.SetCatalogName();
+            ss.SetCatalogName("stars.txt");
             System.out.println(ss.ToString());
         }
 
@@ -61,7 +61,7 @@ public class Main {
         ss = null;
         for (int i = 0; i < temp1.size(); i++) {
             ss = temp1.get(i);
-            ss.SetCatalogName();
+            ss.SetCatalogName("stars.txt");
             System.out.println(ss.ToString());
         }
 
@@ -117,9 +117,7 @@ public class Main {
             while((object = inputStream.readObject()) != null){
                 if(object instanceof Star) {
                     Star temporaryStar = (Star)object;
-                    if (Arrays.equals(catalogName, temporaryStar.getCatalogName())) {
-
-                    }else{
+                    if (!Arrays.equals(catalogName, temporaryStar.getCatalogName())) {
                         listOfStars.add(temporaryStar);
                     }
                 }
@@ -133,12 +131,14 @@ public class Main {
             System.out.println("ClassNotFoundException is caught in SetCatalogName; ");
         }
 
+        SaveToFile(listOfStars, "temporary.txt");
 
         Star temporaryStar = null;
         List<Star> listOfUpdatedStars = new ArrayList<>();
+
         for (int i = 0; i < listOfStars.size(); i++) {
             temporaryStar = listOfStars.get(i);
-            Star updatedStar = new Star(temporaryStar.getName(), temporaryStar.getObservedStarSize(), temporaryStar.getDistanceInLightYears(), temporaryStar.getConstellation(), temporaryStar.getHemisphere(), temporaryStar.getTemperature(), temporaryStar.getMass(), temporaryStar.getRightAscension(), temporaryStar.getDeclination());
+            Star updatedStar = new Star(temporaryStar.getName(), temporaryStar.getObservedStarSize(), temporaryStar.getDistanceInLightYears(), temporaryStar.getConstellation(), temporaryStar.getHemisphere(), temporaryStar.getTemperature(), temporaryStar.getMass(), temporaryStar.getRightAscension(), temporaryStar.getDeclination(), "temporary.txt");
             listOfUpdatedStars.add(updatedStar);
         }
         SaveToFile(listOfUpdatedStars, "stars.txt");

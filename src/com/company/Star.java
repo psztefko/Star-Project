@@ -25,7 +25,7 @@ public class Star implements Serializable {
     protected List<Double> starsBrightnessList = new ArrayList<Double>();
 
 
-    public Star(String name, double observedStarSize, double distanceInLightYears, String constellation, String hemisphere, double temperature, double mass, RightAscension rightAscension, Declination declination) {
+    public Star(String name, double observedStarSize, double distanceInLightYears, String constellation, String hemisphere, double temperature, double mass, RightAscension rightAscension, Declination declination, String filePath) {
         this.name = CheckName(name);
         this.observedStarSize = CheckMagnitudo(observedStarSize);
         this.distanceInLightYears = distanceInLightYears;
@@ -36,7 +36,7 @@ public class Star implements Serializable {
         this.mass = CheckMass(mass);
         this.rightAscension = rightAscension;
         this.declination = declination;
-        this.catalogName = SetCatalogName();
+        this.catalogName = SetCatalogName(filePath);
     }
 
 
@@ -100,10 +100,10 @@ public class Star implements Serializable {
     }
 
 
-    protected String[] SetCatalogName() {
+    protected String[] SetCatalogName(String filePath) {
         int counter = 0;
         try {
-            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream("stars.txt"));
+            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(filePath));
             Object object = null;
             while ((object = inputStream.readObject()) != null) {
                 if (object instanceof Star) {
